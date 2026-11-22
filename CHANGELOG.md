@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1
+- Fixed: Lua errors in WoW Forever after a few fights, when the game hides aura details during combat. Holy Fury no longer queries auras while they are hidden, and relies on the expiry time read before the pull.
+- If an unexpected error still happens, it is shown once in the chat instead of repeating.
+
 ## 1.3.0
 - Works on more versions of the game: Classic Era (including Season of Discovery and Hardcore), Burning Crusade Anniversary, Wrath (Titan), Mists of Pandaria Classic and WoW Forever.
 - Older clients: falls back to the classic aura, spell and talent functions when the modern ones are missing.

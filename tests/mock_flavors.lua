@@ -96,6 +96,9 @@ local permanent = (flavor == "cata" or flavor == "mop")
 local results, fails = {}, 0
 local function check(label, want)
   local ok, err = pcall(tick)
+  for _, line in ipairs(log) do   -- erreur attrapée par l'addon et affichée dans le chat
+    if ok and line:find("|cffff2020", 1, true) then ok, err = false, line end
+  end
   local shown = alert._shown and true or false
   local good = ok and shown == want
   if not good then fails = fails + 1 end
@@ -108,6 +111,29 @@ if not permanent then now = now + 1750; check("reste 50 s (compte à rebours)", 
 if not permanent then now = now + 60; check("Fureur expirée", flavor ~= "retail") end
 fury = nil; spec = "heal"; ev(events, "ACTIVE_TALENT_GROUP_CHANGED"); ev(events, "PLAYER_SPECIALIZATION_CHANGED"); check("spé soins, Fureur absente", false)
 spec = "tank"; ev(events, "ACTIVE_TALENT_GROUP_CHANGED"); ev(events, "PLAYER_SPECIALIZATION_CHANGED"); check("retour spé tank", flavor ~= "retail")
+-- Forever en combat : auras masquées. L'API d'aura échoue ou renvoie des valeurs secrètes,
+-- l'addon doit se fier à l'heure d'expiration lue avant le combat, sans erreur.
+if flavor == "forever" then
+  local secret = {}
+  local hidden = false
+  issecretvalue = function(v) return v == secret end
+  issecrettable = function(t) return t == secret end
+  C_Secrets = { ShouldAurasBeSecret = function() return hidden end }
+  local realAuras = C_UnitAuras
+  local function restricted(f) return function(...) if hidden then error("aura API blocked in combat") end return f(...) end end
+  C_UnitAuras = { GetPlayerAuraBySpellID = restricted(realAuras.GetPlayerAuraBySpellID),
+    GetAuraDataByIndex = restricted(realAuras.GetAuraDataByIndex) }
+  fury = now + 1800; check("combat : avant le pull, Fureur active", false)
+  hidden = true
+  for _ = 1, 8 do now = now + 1; check("combat : auras masquées (pack)", false) end
+  now = now + 1800; check("combat : expirée pendant le combat", true)
+  fury = now + 1800; hidden = false; check("combat : fin, Fureur relancée et relue", false)
+  -- Variante : pas de C_Secrets, mais l'aura renvoyée est une valeur secrète
+  C_Secrets = nil; C_UnitAuras = { GetPlayerAuraBySpellID = function() return secret end,
+    GetAuraDataByIndex = function() return { spellId = secret, expirationTime = secret } end }
+  now = now + 1; check("combat : aura secrète, sans erreur", false)
+  C_UnitAuras = realAuras; issecretvalue = function() return false end; issecrettable = nil
+end
 local ok, err = pcall(SlashCmdList.HOLYFURY, ""); if not ok then fails = fails + 1 end
 results[#results+1] = "  " .. (ok and "OK  " or "ÉCHEC") .. " /hf (statut)" .. (ok and "" or (" ERREUR: "..tostring(err)))
 local statusLine = log[3] or ""

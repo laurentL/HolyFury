@@ -25,7 +25,7 @@
 ## Category-zhTW: 戰鬥
 ## X-License: MIT
 ## Author: llabatut
-## Version: 1.3.0
+## Version: 1.3.1
 ## SavedVariablesPerCharacter: HolyFuryDB
 
 Locales.lua

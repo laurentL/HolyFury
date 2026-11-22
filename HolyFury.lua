@@ -35,6 +35,18 @@ local function Usable(v)
     return v ~= nil and not Secret(v)
 end
 
+local function SecretTable(t)
+    return issecrettable and issecrettable(t)
+end
+
+-- Forever masque les auras en combat : ne pas les interroger tant que le jeu le demande
+local function AurasHidden()
+    if not (C_Secrets and C_Secrets.ShouldAurasBeSecret) then return false end
+    local ok, hidden = pcall(C_Secrets.ShouldAurasBeSecret)
+    if not ok or Secret(hidden) then return true end
+    return hidden and true or false
+end
+
 -- Nom et icône du sort : API moderne (C_Spell), sinon anciennes fonctions des clients Classic
 local function SpellName()
     local name = C_Spell and C_Spell.GetSpellName and C_Spell.GetSpellName(SPELL_ID)
@@ -57,11 +69,14 @@ local function ExpiryOf(exp)
 end
 
 local function FuryStateModern()
+    if AurasHidden() then return nil end
     local aura = C_UnitAuras.GetPlayerAuraBySpellID and C_UnitAuras.GetPlayerAuraBySpellID(SPELL_ID)
+    if Secret(aura) or SecretTable(aura) then return nil end
     if aura then return true, ExpiryOf(aura.expirationTime) end
     if not C_UnitAuras.GetAuraDataByIndex then return false end
     for i = 1, 40 do
         local a = C_UnitAuras.GetAuraDataByIndex("player", i, "HELPFUL")
+        if Secret(a) or SecretTable(a) then return nil end
         if not a then return false end
         local id = a.spellId
         if Secret(id) then return nil end
@@ -82,9 +97,16 @@ local function FuryStateLegacy()
     return false
 end
 
-local function FuryState()
+local function ReadFuryState()
     if C_UnitAuras then return FuryStateModern() end
     return FuryStateLegacy()
+end
+
+-- Une lecture qui échoue (API restreinte en combat) compte comme « inconnu »
+local function FuryState()
+    local ok, state, expires = pcall(ReadFuryState)
+    if ok then return state, expires end
+    return nil
 end
 
 local function InGroupInstance()
@@ -359,6 +381,16 @@ local function Update()
     end
 end
 
+-- Une erreur imprévue n'est signalée qu'une fois, au lieu de 4 fois par seconde
+local errorShown = false
+local function SafeUpdate()
+    local ok, err = pcall(Update)
+    if ok or errorShown then return end
+    errorShown = true
+    if Secret(err) then err = "?" end
+    print("|cff0091ed" .. L.TITLE .. "|r" .. L.SEP .. "|cffff2020" .. tostring(err) .. "|r")
+end
+
 -- Événements ----------------------------------------------------------------
 
 local events = CreateFrame("Frame")
@@ -383,7 +415,7 @@ events:SetScript("OnEvent", function(_, event, arg1)
         end
         PlacePosition()
     elseif event == "PLAYER_LOGIN" then
-        C_Timer.NewTicker(0.25, Update)
+        C_Timer.NewTicker(0.25, SafeUpdate)
     elseif event == "PLAYER_ENTERING_WORLD" then
         InvalidateSpec()
         if not InGroupInstance() then seenThisRun = false end
