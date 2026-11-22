@@ -1,0 +1,32 @@
+## Interface: 11509, 20506, 38002, 50504, 16001
+## Title: Holy Fury
+## Notes: Big, impossible-to-miss alert (icon, message, sound) when Righteous Fury is missing or about to expire while you tank. /hf for options.
+## Notes-frFR: Alerte bien visible (icône, message, son) quand la Fureur vertueuse manque ou va expirer pendant que tu tankes. /hf pour les options.
+## Notes-deDE: Unübersehbare Warnung (Symbol, Meldung, Ton), wenn Zorn der Gerechtigkeit fehlt oder bald abläuft, während du tankst. /hf für Optionen.
+## Notes-esES: Alerta muy visible (icono, mensaje, sonido) cuando Furia justa falta o va a expirar mientras tanqueas. /hf para las opciones.
+## Notes-esMX: Alerta muy visible (icono, mensaje, sonido) cuando Furia justa falta o va a expirar mientras tanqueas. /hf para las opciones.
+## Notes-itIT: Avviso ben visibile (icona, messaggio, suono) quando Furia del Giusto manca o sta per scadere mentre fai da difensore. /hf per le opzioni.
+## Notes-ptBR: Alerta bem visível (ícone, mensagem, som) quando Fúria Justa está faltando ou prestes a expirar enquanto você tanka. /hf para as opções.
+## Notes-ruRU: Заметное оповещение (значок, сообщение, звук), когда Праведное неистовство отсутствует или скоро закончится, пока вы танкуете. /hf — настройки.
+## Notes-koKR: 탱킹 중 정의의 격노가 없거나 곧 사라질 때 눈에 띄는 알림(아이콘, 메시지, 소리). 설정: /hf
+## Notes-zhCN: 坦克时正义之怒缺失或即将消失时显示醒目的提醒（图标、消息、声音）。输入 /hf 查看选项。
+## Notes-zhTW: 坦克時正義之怒缺失或即將消失時顯示醒目的提醒（圖示、訊息、聲音）。輸入 /hf 查看選項。
+## IconTexture: Interface\Icons\Spell_Holy_SealOfFury
+## Category: Combat
+## Category-frFR: Combat
+## Category-deDE: Kampf
+## Category-esES: Combate
+## Category-esMX: Combate
+## Category-itIT: Combattimento
+## Category-ptBR: Combate
+## Category-ruRU: Бой
+## Category-koKR: 전투
+## Category-zhCN: 战斗
+## Category-zhTW: 戰鬥
+## X-License: MIT
+## Author: llabatut
+## Version: 1.3.0
+## SavedVariablesPerCharacter: HolyFuryDB
+
+Locales.lua
+HolyFury.lua
